@@ -268,6 +268,7 @@ create_module()
 # Updates a module
 update_module()
 {
+  local repo=$2;
   local module=$1
   local module_dir="$modgit_dir/$module"
   local source_dir="$module_dir/source"
@@ -275,9 +276,10 @@ update_module()
 
   require_module_dir "$module"
 
-  cd "$source_dir"
+  #cd "$source_dir"
 
-  git pull && git submodule update --init --recursive && success=1
+  #git pull && git submodule update --init --recursive && success=1
+  git subtree pull --prefix=".modgit/$module/source" $repo
 
   if [ $success -eq 1 ] &&
     delete_files "$module" &&
@@ -399,7 +401,8 @@ case "$action" in
 
   update)
 
-    if update_module "$module"
+	repo=$2; shift
+    if update_module "$module" $repo
     then
       echo_b "Update of $module complete."
     else
