@@ -365,9 +365,10 @@ create_module()
   local module_dir="$MODGIT_DIR/$module"; shift 2
   local source_dir="$module_dir/source"
 
-  cd "$MODGIT_DIR"
-  echo_b "Cloning $repo..."
-  if ! git clone --quiet -- $repo "$source_dir"; then
+  
+  #cd "$MODGIT_DIR"
+  echo_b "Pulling subtree $repo..."
+  if ! git subtree add --prefix=".modgit/$module/source" --squash $repo master; then
     remove_module_dir "$module"
     fault "An error occurred while cloning repository"
   fi
@@ -414,12 +415,19 @@ create_module()
 # Updates a module
 update_module()
 {
+<<<<<<< HEAD
   local module="$1"
   local module_dir="$MODGIT_DIR/$module"
+=======
+  local repo=$2;
+  local module=$1
+  local module_dir="$modgit_dir/$module"
+>>>>>>> r2/subtree
   local source_dir="$module_dir/source"
 
   require_module_dir "$module"
 
+<<<<<<< HEAD
   echo_b "Updating '$module' module..."
   sleep 1
 
@@ -458,6 +466,12 @@ update_module()
 
   local new_commit=$(git rev-parse HEAD)
   local count=$(git diff --shortstat "$old_commit" "$new_commit" | cut -d" " -f2)
+=======
+  #cd "$source_dir"
+
+  #git pull && git submodule update --init --recursive && success=1
+  git subtree pull --prefix=".modgit/$module/source" $repo
+>>>>>>> r2/subtree
 
   [ $DRY_RUN -eq 1 ] && git checkout --quiet "$old_commit"
 
@@ -598,8 +612,17 @@ case "$ACTION" in
     module="$1"; shift
     [ -z "$module" ] && fault "No module specified"
 
+<<<<<<< HEAD
     if ! update_module "$module"; then
       fault "Error updating '$module', operation cancelled"
+=======
+	repo=$2; shift
+    if update_module "$module" $repo
+    then
+      echo_b "Update of $module complete."
+    else
+      echo_b "Error updating $module, operation cancelled."
+>>>>>>> r2/subtree
     fi
     ;;
 
